@@ -9,43 +9,44 @@ class Database:
 
     def create_tables(self):
         self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS transactions (
+        CREATE TABLE IF NOT EXISTS Transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             type TEXT,
             price REAL,
             amount REAL,
-            timestamp DATETIME
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         ''')
 
         self.cursor.execute('''
-        CREATE TABLE IF NOT EXISTS balances (
+        CREATE TABLE IF NOT EXISTS Balances (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             eth_balance REAL,
             usd_balance REAL,
-            timestamp DATETIME
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
         )
         ''')
         self.conn.commit()
 
     def add_transaction(self, type, price, amount):
         self.cursor.execute('''
-        INSERT INTO transactions (type, price, amount, timestamp)
-        VALUES (?, ?, ?, ?)
-        ''', (type, price, amount, datetime.now()))
+        INSERT INTO Transactions (type, price, amount)
+        VALUES (?, ?, ?)
+        ''', (type, price, amount))
         self.conn.commit()
-        print(f"Added transaction: {type} {price} {amount} {datetime.now()}")
+        print(f"Added transaction: {type} {price} {amount}")
 
     def update_balance(self, eth_balance, usd_balance):
         self.cursor.execute('''
-        INSERT INTO balances (eth_balance, usd_balance, timestamp)
-        VALUES (?, ?, ?)
-        ''', (eth_balance, usd_balance, datetime.now()))
+        INSERT INTO Balances (eth_balance, usd_balance)
+        VALUES (?, ?)
+        ''', (eth_balance, usd_balance))
         self.conn.commit()
-        print(f"Updated balance: {eth_balance} {usd_balance} {datetime.now()}")
+        print(f"Updated balance: {eth_balance} {usd_balance}")
+
     def get_recent_transactions(self, limit=10):
         self.cursor.execute('''
-        SELECT * FROM transactions
+        SELECT * FROM Transactions
         ORDER BY timestamp DESC
         LIMIT ?
         ''', (limit,))
@@ -53,7 +54,7 @@ class Database:
 
     def get_latest_balance(self):
         self.cursor.execute('''
-        SELECT * FROM balances
+        SELECT * FROM Balances
         ORDER BY timestamp DESC
         LIMIT 1
         ''')
@@ -61,3 +62,9 @@ class Database:
 
     def close(self):
         self.conn.close()
+
+
+if __name__ == "__main__":
+    db = Database()
+    print(db.get_recent_transactions())
+    print(db.get_latest_balance())
