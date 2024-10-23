@@ -4,6 +4,7 @@ import random
 from typing import List, Dict
 from dataclasses import dataclass
 from database import Database
+import sys
 
 @dataclass
 class Order:
@@ -13,12 +14,19 @@ class Order:
 
 class MarketMaker:
     def __init__(self, eth_balance: float, usd_balance: float):
+        self.db = None
+        try:
+            self.db = Database()
+        except FileNotFoundError as e:
+            print(f"Error: {e}")
+            print("The database should be created by the frontend Prisma.")
+            sys.exit(1)
+
         # Initialize the market maker with starting balances
         self.eth_balance = eth_balance
         self.usd_balance = usd_balance
         self.orders: List[Order] = []
         self.last_balance_print = time.time()
-        self.db = Database() 
         self.db.update_balance(self.eth_balance, self.usd_balance) 
 
     def get_order_book(self) -> Dict:
@@ -103,7 +111,8 @@ class MarketMaker:
 
     def __del__(self):
         # Close the database connection when the object is destroyed
-        self.db.close() 
+        if hasattr(self, 'db') and self.db is not None:
+            self.db.close() 
 
 if __name__ == "__main__":
     # Create and run the market maker with initial balances

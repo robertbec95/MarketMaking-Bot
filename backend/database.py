@@ -1,11 +1,18 @@
 import sqlite3
 from datetime import datetime
+import os
 
 class Database:
     def __init__(self, db_name='market_making.db'):
+        self.db_name = db_name
+        if not self.database_exists():
+            raise FileNotFoundError(f"Database '{db_name}' does not exist.")
         self.conn = sqlite3.connect(db_name)
         self.cursor = self.conn.cursor()
         self.create_tables()
+
+    def database_exists(self):
+        return os.path.exists(self.db_name)
 
     def create_tables(self):
         self.cursor.execute('''
