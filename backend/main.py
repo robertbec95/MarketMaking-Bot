@@ -3,7 +3,7 @@ import time
 import random
 from typing import List, Dict
 from dataclasses import dataclass
-from database import Database  # Importăm clasa Database
+from database import Database
 
 @dataclass
 class Order:
@@ -17,8 +17,8 @@ class MarketMaker:
         self.usd_balance = usd_balance
         self.orders: List[Order] = []
         self.last_balance_print = time.time()
-        self.db = Database()  # Inițializăm conexiunea la baza de date
-        self.db.update_balance(self.eth_balance, self.usd_balance)  # Salvăm balanța inițială
+        self.db = Database() 
+        self.db.update_balance(self.eth_balance, self.usd_balance) 
 
     def get_order_book(self) -> Dict:
         url = "https://api.deversifi.com/bfx/v2/book/tETHUSD/R0"
@@ -35,12 +35,12 @@ class MarketMaker:
             if self.usd_balance >= bid_price * bid_amount:
                 self.orders.append(Order("BID", bid_price, bid_amount))
                 print(f"PLACE BID @ {bid_price} {bid_amount}")
-                self.db.add_transaction("PLACE_BID", bid_price, bid_amount)  # Salvăm tranzacția
+                self.db.add_transaction("PLACE_BID", bid_price, bid_amount)  
 
             if self.eth_balance >= ask_amount:
                 self.orders.append(Order("ASK", ask_price, ask_amount))
                 print(f"PLACE ASK @ {ask_price} {ask_amount}")
-                self.db.add_transaction("PLACE_ASK", ask_price, ask_amount)  # Salvăm tranzacția
+                self.db.add_transaction("PLACE_ASK", ask_price, ask_amount)  
 
     def check_filled_orders(self, best_bid: float, best_ask: float):
         filled_orders = []
@@ -55,20 +55,20 @@ class MarketMaker:
                 self.eth_balance += order.amount
                 self.usd_balance -= order.price * order.amount
                 print(f"FILLED BID @ {order.price} {order.amount} (ETH + {order.amount} USD - {order.price * order.amount})")
-                self.db.add_transaction("FILLED_BID", order.price, order.amount)  # Salvăm tranzacția
+                self.db.add_transaction("FILLED_BID", order.price, order.amount)  
             else:
                 self.eth_balance -= order.amount
                 self.usd_balance += order.price * order.amount
                 print(f"FILLED ASK @ {order.price} {order.amount} (ETH - {order.amount} USD + {order.price * order.amount})")
-                self.db.add_transaction("FILLED_ASK", order.price, order.amount)  # Salvăm tranzacția
+                self.db.add_transaction("FILLED_ASK", order.price, order.amount)  
             
-            self.db.update_balance(self.eth_balance, self.usd_balance)  # Actualizăm balanța
+            self.db.update_balance(self.eth_balance, self.usd_balance)  
 
     def print_balances(self):
         print(f"ETH Balance: {self.eth_balance:.4f}")
         print(f"USD Balance: {self.usd_balance:.2f}")
         
-        # Afișăm ultimele 5 tranzacții
+       
         print("Recent transactions:")
         for transaction in self.db.get_recent_transactions(5):
             print(f"Type: {transaction[1]}, Price: {transaction[2]}, Amount: {transaction[3]}, Time: {transaction[4]}")
@@ -89,7 +89,7 @@ class MarketMaker:
             time.sleep(5)
 
     def __del__(self):
-        self.db.close()  # Închidem conexiunea la baza de date când obiectul este distrus
+        self.db.close() 
 
 if __name__ == "__main__":
     bot = MarketMaker(10, 2000)
