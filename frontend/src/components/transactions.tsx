@@ -39,20 +39,27 @@ export default function Transactions() {
   };
 
   if (error) {
-    return <div>Error loading transactions: {error.message}</div>;
+    return <div className='flex justify-center items-center h-screen'>Error loading transactions: {error.message}</div>;
   }
 
   return (
     <div className='w-full'>
       <div className="mx-auto max-w-6xl px-2 sm:px-6">
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-2 mb-5">
           <h3 className="text-2xl">Last transactions</h3>
           <h4 className="text-sm font-thin">
             Transactions are updated every 5 seconds (Most recent first)
           </h4>
-           <div className='bg-white text-black p-3 rounded-lg flex gap-2 mt-4'>
-          <h2 className="text-xl font-semibold">Latest Balance : </h2>
-          <p className='text-black text-xl'>{data?.latestBalance?.eth_balance} ETH</p>
+           <div className='bg-white text-black p-3 rounded-lg flex justify-between items-center gap-2 mt-4'>
+            <h2 className="text-xl font-semibold">Latest Balance</h2>
+            <Badge variant="outline" className="bg-blue-500 text-white">
+              {data?.latestBalance?.eth_balance.toFixed(2)} ETH
+            </Badge>
+            <Badge variant="outline" className="bg-green-500 text-white">
+              {data?.latestBalance?.usd_balance.toFixed(2)} USD
+            </Badge>
+           </div>
+
         </div>
           {isLoading ? (
             <Skeleton className="w-full h-40" />
@@ -88,6 +95,5 @@ export default function Transactions() {
         </div>
        
       </div>
-    </div>
   )
 }
